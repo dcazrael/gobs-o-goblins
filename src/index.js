@@ -14,6 +14,8 @@ import {
   ActiveEffects,
   Ai,
   Effects,
+  EquipmentSlot,
+  IsEquipped,
   IsInFov,
   Move,
   Position,
@@ -286,6 +288,36 @@ const processUserInput = () => {
 
           addLog(`You consume a ${entity.description.name}`);
           player.fireEvent('consume', entity);
+        }
+
+        selectedInventoryIndex = 0;
+
+        gameState = 'GAME';
+      }
+    }
+
+    if (userInput === 'e') {
+      const entity = player.inventory.inventoryItems[selectedInventoryIndex];
+
+      if (entity) {
+        if (entity.isEquippable) {
+          if (!entity.has(IsEquipped)) {
+            player.add(EquipmentSlot, {
+              name: entity.slot.name,
+              itemId: entity.id,
+            });
+            entity.add(IsEquipped);
+
+            player.fireEvent('equip', entity);
+            addLog(`You equip ${entity.description.name}`);
+          } else {
+            console.log(player.equipmentSlot[entity.slot.name]);
+            player.equipmentSlot[entity.slot.name].destroy();
+            entity.remove(entity.isEquipped);
+
+            player.fireEvent('unequip', entity);
+            addLog(`You unequip ${entity.description.name}`);
+          }
         }
 
         selectedInventoryIndex = 0;

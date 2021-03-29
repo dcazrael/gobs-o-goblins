@@ -1,8 +1,8 @@
-import { rectangle } from "./grid";
+import { rectangle } from './grid';
 
 const pixelRatio = window.devicePixelRatio || 1;
-const canvas = document.querySelector("#canvas");
-const ctx = canvas.getContext("2d");
+const canvas = document.querySelector('#canvas');
+const ctx = canvas.getContext('2d');
 
 export const grid = {
   width: 100,
@@ -24,9 +24,16 @@ export const grid = {
 
   playerHud: {
     width: 20,
-    height: 34,
+    height: 6,
     x: 0,
     y: 0,
+  },
+
+  playerEquipment: {
+    width: 20,
+    height: 28,
+    x: 0,
+    y: 7,
   },
 
   infoBar: {
@@ -65,8 +72,8 @@ canvas.width = cellWidth * grid.width;
 canvas.height = cellHeight * grid.height;
 
 ctx.font = `normal ${fontSize}px 'Fira Code'`;
-ctx.textAlign = "center";
-ctx.textBaseline = "middle";
+ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
 
 export const drawChar = ({ char, color, position }) => {
   ctx.fillStyle = color;
@@ -78,7 +85,7 @@ export const drawChar = ({ char, color, position }) => {
 };
 
 const drawBackground = ({ color, position }) => {
-  if (color === "transparent") return;
+  if (color === 'transparent') return;
 
   ctx.fillStyle = color;
 
@@ -103,7 +110,7 @@ export const drawCell = (entity, options = {}) => {
 export const drawText = (template) => {
   const textToRender = template.text;
 
-  textToRender.split("").forEach((char, index) => {
+  textToRender.split('').forEach((char, index) => {
     const options = { ...template };
     const character = {
       appearance: {
@@ -150,4 +157,29 @@ export const pxToCell = (ev) => {
   const rowPos = Math.trunc((relativeY / cellHeight) * pixelRatio);
 
   return [colPos, rowPos];
+};
+
+export const drawImage = ({
+  x,
+  y,
+  width,
+  height,
+  image,
+  color = '#FFFFFF',
+}) => {
+  const img = new Image();
+
+  const coloredImage = image.replace(/#color/g, color);
+
+  img.onload = function () {
+    ctx.drawImage(
+      img,
+      x * cellWidth + cellWidth / 2,
+      y * cellHeight + cellHeight / 2,
+      width * cellWidth + cellWidth / 2,
+      height * cellHeight
+    );
+  };
+  img.src =
+    'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(coloredImage);
 };

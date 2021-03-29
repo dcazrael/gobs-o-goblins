@@ -1,8 +1,10 @@
 import { throttle } from 'lodash';
+import { Chest, Helmet, Legs, Shield, Sword } from '../images/equipment';
 import { gameState, messageLog, selectedInventoryIndex } from '../index';
 import {
   clearCanvas,
   drawCell,
+  drawImage,
   drawRect,
   drawText,
   grid,
@@ -94,14 +96,14 @@ const renderPlayerHud = (player) => {
   });
 
   drawText({
-    text: '♥'.repeat(player.health.max),
+    text: '♥'.repeat(player.health.base),
     background: 'black',
     color: '#333',
     x: grid.playerHud.x,
     y: grid.playerHud.y + 1,
   });
 
-  const hp = player.health.current / player.health.max;
+  const hp = player.health.current / player.health.base;
 
   if (hp > 0) {
     drawText({
@@ -119,6 +121,85 @@ const renderPlayerHud = (player) => {
     color: '#666',
     x: grid.playerHud.x,
     y: grid.playerHud.y + 2,
+  });
+
+  drawText({
+    text: `Power: ${player.power.current}`,
+    background: 'black',
+    color: '#DDD',
+    x: grid.playerHud.x,
+    y: grid.playerHud.y + 4,
+  });
+
+  drawText({
+    text: `Defense: ${player.defense.current}`,
+    background: 'black',
+    color: '#DDD',
+    x: grid.playerHud.x,
+    y: grid.playerHud.y + 5,
+  });
+};
+
+const clearPlayerEquipment = () => {
+  clearCanvas(
+    grid.playerEquipment.x,
+    grid.playerEquipment.y,
+    grid.playerEquipment.width + 1,
+    grid.playerEquipment.height
+  );
+};
+
+const renderPlayerEquipment = (player) => {
+  clearPlayerEquipment();
+
+  // helmet
+  drawImage({
+    x: grid.playerEquipment.x + 5,
+    y: grid.playerEquipment.y,
+    width: 3,
+    height: 3,
+    image: Helmet,
+    color: player.equipmentSlot?.head ? '#FFFFFF' : '#111111',
+  });
+
+  // weapon
+  drawImage({
+    x: grid.playerEquipment.x + 1,
+    y: grid.playerEquipment.y + 4,
+    width: 3,
+    height: 3,
+    image: Sword,
+    color: player.equipmentSlot?.weapon ? '#FFFFFF' : '#111111',
+  });
+
+  // chest
+  drawImage({
+    x: grid.playerEquipment.x + 5,
+    y: grid.playerEquipment.y + 4,
+    width: 3,
+    height: 3,
+    image: Chest,
+    color: player.equipmentSlot?.chest ? '#FFFFFF' : '#111111',
+  });
+
+  // shield
+  drawImage({
+    x: grid.playerEquipment.x + 9,
+    y: grid.playerEquipment.y + 4,
+    width: 3,
+    height: 3,
+    image: Shield,
+    color: player.equipmentSlot?.shield ? '#FFFFFF' : '#111111',
+  });
+
+  // legs
+  drawImage({
+    x: grid.playerEquipment.x + 5,
+    y: grid.playerEquipment.y + 8,
+    width: 3,
+    height: 3,
+    image: Legs,
+    color: player.equipmentSlot?.legs ? '#FFFFFF' : '#111111',
   });
 };
 
@@ -250,7 +331,7 @@ const renderInventory = (player) => {
       drawText({
         text: `${index === selectedInventoryIndex ? '*' : ' '}${
           item.description.name
-        }`,
+        }${item.isEquipped ? '[e]' : ''}`,
         background: 'black',
         color: 'white',
         x: grid.inventory.x,
@@ -302,6 +383,7 @@ const renderMenu = () => {
 export const render = (player) => {
   renderMap();
   renderPlayerHud(player);
+  renderPlayerEquipment(player);
   renderMessageLog();
   renderMenu();
 

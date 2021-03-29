@@ -31,7 +31,155 @@ export const Item = {
   ],
 };
 
+export const Gear = {
+  name: 'Gear',
+  inherit: ['Item'],
+  components: [{ type: 'IsEquippable' }],
+};
+
 // Complex
+export const Weapon = {
+  name: 'Weapon',
+  inherit: ['Gear'],
+  components: [
+    { type: 'Appearance', properties: { char: '⚔', color: '#0066ff' } },
+
+    {
+      type: 'Description',
+      properties: { name: 'mighty weapon' },
+    },
+    {
+      type: 'EquipmentEffect',
+      properties: {
+        component: 'power',
+        delta: 2,
+      },
+    },
+    {
+      type: 'Slot',
+      properties: {
+        name: 'weapon',
+      },
+    },
+  ],
+};
+
+export const Armor = {
+  name: 'Armor',
+  inherit: ['Gear'],
+  components: [
+    { type: 'Appearance', properties: { char: '🛡', color: '#ff99ff' } },
+
+    {
+      type: 'Description',
+      properties: { name: 'armor piece' },
+    },
+  ],
+};
+
+export const Chest = {
+  name: 'Chest',
+  inherit: ['Armor'],
+  components: [
+    {
+      type: 'Description',
+      properties: { name: 'chest piece' },
+    },
+    {
+      type: 'Slot',
+      properties: {
+        name: 'chest',
+      },
+    },
+    {
+      type: 'EquipmentEffect',
+      properties: {
+        component: 'defense',
+        delta: 1,
+      },
+    },
+    {
+      type: 'EquipmentEffect',
+      properties: {
+        component: 'health',
+        delta: 1,
+      },
+    },
+  ],
+};
+
+export const Helmet = {
+  name: 'Helmet',
+  inherit: ['Armor'],
+  components: [
+    {
+      type: 'Description',
+      properties: { name: 'helmet' },
+    },
+    {
+      type: 'Slot',
+      properties: {
+        name: 'head',
+      },
+    },
+    {
+      type: 'EquipmentEffect',
+      properties: {
+        component: 'defense',
+        delta: 1,
+      },
+    },
+  ],
+};
+
+export const Shield = {
+  name: 'Shield',
+  inherit: ['Armor'],
+  components: [
+    {
+      type: 'Description',
+      properties: { name: 'shield' },
+    },
+    {
+      type: 'Slot',
+      properties: {
+        name: 'shield',
+      },
+    },
+    {
+      type: 'EquipmentEffect',
+      properties: {
+        component: 'defense',
+        delta: 2,
+      },
+    },
+  ],
+};
+
+export const Boots = {
+  name: 'Boots',
+  inherit: ['Armor'],
+  components: [
+    {
+      type: 'Description',
+      properties: { name: 'boots' },
+    },
+    {
+      type: 'Slot',
+      properties: {
+        name: 'legs',
+      },
+    },
+    {
+      type: 'EquipmentEffect',
+      properties: {
+        component: 'health',
+        delta: 1,
+      },
+    },
+  ],
+};
+
 export const HealthPotion = {
   name: 'HealthPotion',
   inherit: ['Item'],
@@ -237,8 +385,8 @@ export const Goblin = {
       type: 'Description',
       properties: { name: 'goblin' },
     },
-    { type: 'Power', properties: { max: 2, current: 2 } },
-    { type: 'Health', properties: { max: 7, current: 7 } },
+    { type: 'Power', properties: { base: 2, current: 2 } },
+    { type: 'Health', properties: { base: 7, current: 7 } },
   ],
 };
 
@@ -254,7 +402,7 @@ export const GoblinWarrior = {
       type: 'Description',
       properties: { name: 'goblin warrior' },
     },
-    { type: 'Defense', properties: { max: 2, current: 2 } },
-    { type: 'Power', properties: { max: 4, current: 4 } },
+    { type: 'Defense', properties: { base: 2, current: 2 } },
+    { type: 'Power', properties: { base: 4, current: 4 } },
   ],
 };

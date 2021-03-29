@@ -10,12 +10,7 @@ import {
 import { grid } from './canvas';
 import { DUNGEON_LAYOUT } from './dungeon_layout';
 import { rectangle, rectsIntersect } from './grid';
-import {
-  ITEM_WEIGHT,
-  MAX_ITEMS_BY_FLOOR,
-  MAX_MONSTERS_BY_FLOOR,
-  MONSTER_WEIGHT,
-} from './level_entities';
+import { ITEM_WEIGHT, MAX_ITEMS_BY_FLOOR } from './level_entities';
 
 function digHorizontalPassage(x1, x2, y, z) {
   const tiles = {};
@@ -147,12 +142,12 @@ export const createDungeonLevel = ({
   });
 
   generateEntities(currentLevel, MAX_ITEMS_BY_FLOOR, ITEM_WEIGHT, dungeon);
-  generateEntities(
-    currentLevel,
-    MAX_MONSTERS_BY_FLOOR,
-    MONSTER_WEIGHT,
-    dungeon
-  );
+  // generateEntities(
+  //   currentLevel,
+  //   MAX_MONSTERS_BY_FLOOR,
+  //   MONSTER_WEIGHT,
+  //   dungeon
+  // );
 
   let stairsUp, stairsDown;
 

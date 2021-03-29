@@ -45,7 +45,7 @@ export class Appearance extends Component {
 }
 
 export class Defense extends Component {
-  static properties = { max: 1, current: 1 };
+  static properties = { base: 1, current: 1 };
 }
 
 export class Description extends Component {
@@ -58,7 +58,7 @@ export class Effects extends Component {
 }
 
 export class Health extends Component {
-  static properties = { max: 10, current: 10 };
+  static properties = { base: 10, current: 10 };
 
   onTakeDamage(evt) {
     this.current -= evt.data.amount;
@@ -120,9 +120,63 @@ export class Inventory extends Component {
   }
 }
 
+export class EquipmentEffect extends Component {
+  static allowMultiple = true;
+  static properties = {
+    component: '',
+    delta: '',
+    events: [], // { name: "", args: {} },
+  };
+}
+
+export class EquipmentSlot extends Component {
+  static properties = {
+    name: '',
+    itemId: this.itemId,
+  };
+  static allowMultiple = true;
+  static keyProperty = 'name';
+
+  get item() {
+    return this.world.getEntity(this.itemId);
+  }
+
+  set item(entity) {
+    return (this.itemId = entity.id);
+  }
+
+  onEquip(evt) {
+    evt.data.equipmentEffect.forEach((effect) => {
+      this.entity[effect.component].base += effect.delta;
+      this.entity[effect.component].current += effect.delta;
+    });
+
+    evt.handle();
+  }
+
+  onUnequip(evt) {
+    evt.data.equipmentEffect.forEach((effect) => {
+      this.entity[effect.component].base -= effect.delta;
+      if (this.entity[effect.component].base <= 0) {
+        this.entity[effect.component].base = 0;
+      }
+      this.entity[effect.component].current -= effect.delta;
+      if (this.entity[effect.component].current <= 0) {
+        this.entity[effect.component].current = 0;
+      }
+    });
+
+    evt.handle();
+  }
+}
+
 export class IsBlocking extends Component {}
 
 export class IsDead extends Component {}
+
+export class IsEquippable extends Component {}
+
+export class IsEquipped extends Component {}
 
 export class IsInFov extends Component {}
 
@@ -159,7 +213,7 @@ export class Position extends Component {
 }
 
 export class Power extends Component {
-  static properties = { max: 5, current: 5 };
+  static properties = { base: 5, current: 5 };
 }
 
 export class RequiresTarget extends Component {
@@ -167,6 +221,10 @@ export class RequiresTarget extends Component {
     acquired: 'RANDOM',
     aoeRange: 0,
   };
+}
+
+export class Slot extends Component {
+  static properties = { name: '' };
 }
 
 export class Target extends Component {
