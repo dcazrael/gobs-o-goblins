@@ -1,5 +1,4 @@
 import { throttle } from 'lodash';
-import { Chest, Helmet, Legs, Shield, Sword } from '../images/equipment';
 import { gameState, messageLog, selectedInventoryIndex } from '../index';
 import {
   clearCanvas,
@@ -10,6 +9,7 @@ import {
   grid,
   pxToCell,
 } from '../lib/canvas';
+import { Chest, Helmet, Legs, Shield, Sword } from '../lib/equipment';
 import { toLocId } from '../lib/grid';
 import { readCache, readCacheSet } from '../state/cache';
 import {
