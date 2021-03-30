@@ -46,14 +46,7 @@ export const Weapon = {
 
     {
       type: 'Description',
-      properties: { name: 'mighty weapon' },
-    },
-    {
-      type: 'EquipmentEffect',
-      properties: {
-        component: 'power',
-        delta: 2,
-      },
+      properties: { name: 'weapon' },
     },
     {
       type: 'Slot',
@@ -91,20 +84,6 @@ export const Chest = {
         name: 'chest',
       },
     },
-    {
-      type: 'EquipmentEffect',
-      properties: {
-        component: 'defense',
-        delta: 1,
-      },
-    },
-    {
-      type: 'EquipmentEffect',
-      properties: {
-        component: 'health',
-        delta: 1,
-      },
-    },
   ],
 };
 
@@ -120,13 +99,6 @@ export const Helmet = {
       type: 'Slot',
       properties: {
         name: 'head',
-      },
-    },
-    {
-      type: 'EquipmentEffect',
-      properties: {
-        component: 'defense',
-        delta: 1,
       },
     },
   ],
@@ -146,13 +118,6 @@ export const Shield = {
         name: 'shield',
       },
     },
-    {
-      type: 'EquipmentEffect',
-      properties: {
-        component: 'defense',
-        delta: 2,
-      },
-    },
   ],
 };
 
@@ -168,13 +133,6 @@ export const Boots = {
       type: 'Slot',
       properties: {
         name: 'legs',
-      },
-    },
-    {
-      type: 'EquipmentEffect',
-      properties: {
-        component: 'health',
-        delta: 1,
       },
     },
   ],

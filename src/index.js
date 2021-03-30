@@ -302,6 +302,16 @@ const processUserInput = () => {
       if (entity) {
         if (entity.isEquippable) {
           if (!entity.has(IsEquipped)) {
+            if (player.equipmentSlot?.[entity.slot.name]) {
+              const previousEquipped = world.getEntity(
+                player.equipmentSlot?.[entity.slot.name].itemId
+              );
+              previousEquipped.remove(previousEquipped.isEquipped);
+
+              player.fireEvent('unequip', previousEquipped);
+              player.remove(player.equipmentSlot[previousEquipped.slot.name]);
+              addLog(`You unequip ${previousEquipped.description.name}`);
+            }
             player.add(EquipmentSlot, {
               name: entity.slot.name,
               itemId: entity.id,
@@ -311,11 +321,10 @@ const processUserInput = () => {
             player.fireEvent('equip', entity);
             addLog(`You equip ${entity.description.name}`);
           } else {
-            console.log(player.equipmentSlot[entity.slot.name]);
-            player.equipmentSlot[entity.slot.name].destroy();
             entity.remove(entity.isEquipped);
 
             player.fireEvent('unequip', entity);
+            player.equipmentSlot[entity.slot.name].destroy();
             addLog(`You unequip ${entity.description.name}`);
           }
         }

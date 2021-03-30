@@ -14,6 +14,8 @@ import { toLocId } from '../lib/grid';
 import { readCache, readCacheSet } from '../state/cache';
 import {
   Appearance,
+  EquipmentEffect,
+  Inventory,
   IsInFov,
   IsRevealed,
   Layer100,
@@ -41,7 +43,7 @@ const clearMap = () => {
   clearCanvas(grid.map.x - 1, grid.map.y, grid.map.width + 1, grid.map.height);
 };
 
-export const renderMap = (player) => {
+export const renderMap = () => {
   clearMap();
 
   layer100Entities.get().forEach((entity) => {
@@ -151,55 +153,87 @@ const clearPlayerEquipment = () => {
 
 const renderPlayerEquipment = (player) => {
   clearPlayerEquipment();
+  let equipmentSlots = [
+    { head: Helmet },
+    { weapon: Sword },
+    { chest: Chest },
+    { shield: Shield },
+    { legs: Legs },
+  ];
 
-  // helmet
-  drawImage({
-    x: grid.playerEquipment.x + 5,
-    y: grid.playerEquipment.y,
-    width: 3,
-    height: 3,
-    image: Helmet,
-    color: player.equipmentSlot?.head ? '#FFFFFF' : '#111111',
+  equipmentSlots.forEach((slot) => {
+    const [name, image] = Object.entries(slot)[0];
+    drawImage({
+      x: grid.playerEquipment[name].x,
+      y: grid.playerEquipment[name].y,
+      width: 3,
+      height: 3,
+      image: image,
+      color: player.equipmentSlot?.[name] ? '#FFFFFF' : '#111111',
+    });
+  });
+};
+
+const clearEquipmentInfo = () => {
+  clearCanvas(
+    grid.equipmentInfo.x,
+    grid.equipmentInfo.y,
+    grid.equipmentInfo.width + 1,
+    grid.equipmentInfo.height
+  );
+};
+
+const renderEquipmentInfo = (item) => {
+  clearEquipmentInfo();
+
+  drawText({
+    text: `${item.appearance.char} ${item.description.name}`,
+    background: `${item.appearance.background}`,
+    color: `#DDD`,
+    x: grid.equipmentInfo.x,
+    y: grid.equipmentInfo.y,
   });
 
-  // weapon
-  drawImage({
-    x: grid.playerEquipment.x + 1,
-    y: grid.playerEquipment.y + 4,
-    width: 3,
-    height: 3,
-    image: Sword,
-    color: player.equipmentSlot?.weapon ? '#FFFFFF' : '#111111',
-  });
+  if (item.has(EquipmentEffect)) {
+    item.equipmentEffect.forEach((effect, index) => {
+      drawText({
+        text: `${effect.component}: +${effect.delta}`,
+        background: 'black',
+        color: '#DDD',
+        x: grid.equipmentInfo.x,
+        y: grid.equipmentInfo.y + index + 1,
+      });
+    });
+  }
+};
 
-  // chest
-  drawImage({
-    x: grid.playerEquipment.x + 5,
-    y: grid.playerEquipment.y + 4,
-    width: 3,
-    height: 3,
-    image: Chest,
-    color: player.equipmentSlot?.chest ? '#FFFFFF' : '#111111',
-  });
+const hoverEquipment = (x, y) => {
+  let equipmentSlots = [
+    { head: Helmet },
+    { weapon: Sword },
+    { chest: Chest },
+    { shield: Shield },
+    { legs: Legs },
+  ];
 
-  // shield
-  drawImage({
-    x: grid.playerEquipment.x + 9,
-    y: grid.playerEquipment.y + 4,
-    width: 3,
-    height: 3,
-    image: Shield,
-    color: player.equipmentSlot?.shield ? '#FFFFFF' : '#111111',
-  });
+  equipmentSlots.forEach((slot) => {
+    const [name] = Object.entries(slot)[0];
+    if (
+      x >= grid.playerEquipment[name].x &&
+      x <= grid.playerEquipment[name].x + 3 &&
+      y >= grid.playerEquipment[name].y &&
+      y <= grid.playerEquipment[name].y + 3
+    ) {
+      const query = world.createQuery({
+        all: [Inventory],
+      });
 
-  // legs
-  drawImage({
-    x: grid.playerEquipment.x + 5,
-    y: grid.playerEquipment.y + 8,
-    width: 3,
-    height: 3,
-    image: Legs,
-    color: player.equipmentSlot?.legs ? '#FFFFFF' : '#111111',
+      let player = query.get()[0];
+      if (player.equipmentSlot?.[name]) {
+        const item = world.getEntity(player.equipmentSlot?.[name].itemId);
+        renderEquipmentInfo(item);
+      }
+    }
   });
 };
 
@@ -285,9 +319,20 @@ const renderInfoBar = (mPos) => {
         const entity = world.getEntity(eId);
         clearInfoBar();
 
+        const isPlural =
+          [...entity.description.name][
+            [...entity.description.name].length - 1
+          ] === 's'
+            ? true
+            : false;
+
+        const entityText = `${!isPlural ? 'a ' : ''}${
+          entity.description.name
+        }(${entity.appearance.char})`;
+
         if (entity.isInFov) {
           drawText({
-            text: `You see a ${entity.description.name}(${entity.appearance.char}) here.`,
+            text: `You see ${entityText} here.`,
             x: grid.infoBar.x,
             y: grid.infoBar.y,
             color: 'white',
@@ -295,7 +340,7 @@ const renderInfoBar = (mPos) => {
           });
         } else {
           drawText({
-            text: `You remember seeing a ${entity.description.name}(${entity.appearance.char}) here.`,
+            text: `You remember seeing ${entityText} here.`,
             x: grid.infoBar.x,
             y: grid.infoBar.y,
             color: 'white',
@@ -393,9 +438,21 @@ export const render = (player) => {
 };
 
 const canvas = document.querySelector('canvas');
+const ctx = canvas.getContext('2d');
 canvas.onmousemove = throttle((e) => {
   if (gameState === 'GAME') {
     const [x, y] = pxToCell(e);
+
+    if (
+      x >= grid.playerEquipment.x &&
+      y >= grid.playerEquipment.y &&
+      x <= grid.playerEquipment.x + grid.playerEquipment.width &&
+      y <= grid.playerEquipment.y + grid.playerEquipment.height
+    ) {
+      clearEquipmentInfo();
+      hoverEquipment(x, y);
+    }
+
     renderMap();
     renderInfoBar({ x, y, z: readCache('z') });
   }

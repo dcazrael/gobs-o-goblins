@@ -1,7 +1,12 @@
 import { random, sample, times } from 'lodash';
 import { readCache } from '../state/cache';
-import { Position } from '../state/components';
+import { EquipmentEffect, IsEquippable, Position } from '../state/components';
 import world from '../state/ecs';
+import {
+  ARMOR_PREFIXES,
+  ARMOR_SUFFIXES,
+  WEAPON_PREFIXES,
+} from '../systems/affix';
 import {
   getEntityChancesForLevel,
   getHighestMatch,
@@ -10,7 +15,12 @@ import {
 import { grid } from './canvas';
 import { DUNGEON_LAYOUT } from './dungeon_layout';
 import { rectangle, rectsIntersect } from './grid';
-import { ITEM_WEIGHT, MAX_ITEMS_BY_FLOOR } from './level_entities';
+import {
+  ITEM_WEIGHT,
+  MAX_ITEMS_BY_FLOOR,
+  MAX_MONSTERS_BY_FLOOR,
+  MONSTER_WEIGHT,
+} from './level_entities';
 
 function digHorizontalPassage(x1, x2, y, z) {
   const tiles = {};
@@ -142,12 +152,14 @@ export const createDungeonLevel = ({
   });
 
   generateEntities(currentLevel, MAX_ITEMS_BY_FLOOR, ITEM_WEIGHT, dungeon);
-  // generateEntities(
-  //   currentLevel,
-  //   MAX_MONSTERS_BY_FLOOR,
-  //   MONSTER_WEIGHT,
-  //   dungeon
-  // );
+  generateAffixes();
+
+  generateEntities(
+    currentLevel,
+    MAX_MONSTERS_BY_FLOOR,
+    MONSTER_WEIGHT,
+    dungeon
+  );
 
   let stairsUp, stairsDown;
 
@@ -189,4 +201,43 @@ const getEntitiesAtRandom = (
     let prefab = getWeightedValue(entityWeightedChances);
     world.createPrefab(prefab).add(Position, getOpenTiles(dungeon));
   });
+};
+
+const generateAffixes = () => {
+  const equippableItems = world.createQuery({ all: [IsEquippable] }).get();
+
+  equippableItems.forEach((item) => {
+    if (item.slot.name === 'weapon') {
+      addAffix(item, WEAPON_PREFIXES);
+      return;
+    }
+
+    // suffix
+    addAffix(item, ARMOR_SUFFIXES);
+
+    // prefix
+
+    addAffix(item, ARMOR_PREFIXES);
+  });
+};
+
+const addAffix = (item, affixes) => {
+  times(getWeightedNumber(false), () => {
+    const affix = Object.keys(affixes)[getWeightedNumber()];
+    item.add(EquipmentEffect, affixes[affix]);
+    item.description.name = `${affix} ${item.description.name}`;
+  });
+};
+
+const getWeightedNumber = (isAffix = true) => {
+  const rng = Math.floor(Math.random() * 20 + 1);
+
+  if (!isAffix) {
+    if (rng <= 13) return 0;
+    return 1;
+  }
+
+  if (rng <= 10) return 0;
+  if (rng <= 16) return 1;
+  return 2;
 };

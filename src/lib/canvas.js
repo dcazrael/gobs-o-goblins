@@ -31,9 +31,21 @@ export const grid = {
 
   playerEquipment: {
     width: 20,
-    height: 28,
+    height: 13,
     x: 0,
     y: 7,
+    head: { x: 5, y: 7 },
+    weapon: { x: 1, y: 11 },
+    chest: { x: 5, y: 11 },
+    shield: { x: 9, y: 11 },
+    legs: { x: 5, y: 15 },
+  },
+
+  equipmentInfo: {
+    width: 20,
+    height: 7,
+    x: 0,
+    y: 20,
   },
 
   infoBar: {
@@ -110,7 +122,7 @@ export const drawCell = (entity, options = {}) => {
 export const drawText = (template) => {
   const textToRender = template.text;
 
-  textToRender.split('').forEach((char, index) => {
+  [...textToRender].forEach((char, index) => {
     const options = { ...template };
     const character = {
       appearance: {
@@ -126,7 +138,6 @@ export const drawText = (template) => {
 
     delete options.x;
     delete options.y;
-
     drawCell(character, options);
   });
 };

@@ -125,17 +125,17 @@ export class EquipmentEffect extends Component {
   static properties = {
     component: '',
     delta: '',
-    events: [], // { name: "", args: {} },
   };
 }
 
 export class EquipmentSlot extends Component {
+  static allowMultiple = true;
+  static keyProperty = 'name';
+
   static properties = {
     name: '',
     itemId: this.itemId,
   };
-  static allowMultiple = true;
-  static keyProperty = 'name';
 
   get item() {
     return this.world.getEntity(this.itemId);
@@ -146,15 +146,15 @@ export class EquipmentSlot extends Component {
   }
 
   onEquip(evt) {
+    if (!evt.data.equipmentEffect) return;
     evt.data.equipmentEffect.forEach((effect) => {
       this.entity[effect.component].base += effect.delta;
       this.entity[effect.component].current += effect.delta;
     });
-
-    evt.handle();
   }
 
   onUnequip(evt) {
+    if (!evt.data.equipmentEffect) return;
     evt.data.equipmentEffect.forEach((effect) => {
       this.entity[effect.component].base -= effect.delta;
       if (this.entity[effect.component].base <= 0) {
@@ -165,8 +165,6 @@ export class EquipmentSlot extends Component {
         this.entity[effect.component].current = 0;
       }
     });
-
-    evt.handle();
   }
 }
 
