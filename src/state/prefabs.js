@@ -352,6 +352,7 @@ export const GoblinWarrior = {
   name: 'GoblinWarrior',
   inherit: ['Being'],
   components: [
+    { type: 'Ai' },
     {
       type: 'Appearance',
       properties: { char: 'w', color: 'green' },

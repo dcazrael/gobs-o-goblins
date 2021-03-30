@@ -15,6 +15,7 @@ import {
   Ai,
   Effects,
   EquipmentSlot,
+  IsDead,
   IsEquipped,
   IsInFov,
   Move,
@@ -94,6 +95,10 @@ const enemiesInFOV = world.createQuery({ all: [IsInFov, Ai] });
 export const goToDungeonLevel = (level) => {
   const goingUp = readCache('z') < level;
   const floor = readCache('floors')[level];
+
+  const deadEntities = world.createQuery({ all: [IsDead] }).get();
+
+  deadEntities.forEach((deadEntity) => deadEntity.destroy());
 
   addCache('z', level);
   player.remove(player.position);
@@ -288,6 +293,8 @@ const processUserInput = () => {
 
           addLog(`You consume a ${entity.description.name}`);
           player.fireEvent('consume', entity);
+        } else {
+          addLog(`You can't consume ${entity.description.name}`);
         }
 
         selectedInventoryIndex = 0;

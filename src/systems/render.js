@@ -364,7 +364,7 @@ const renderInventory = (player) => {
   });
 
   drawText({
-    text: '(c)Consume (d)Drop',
+    text: '(c)Consume (d)Drop (e)Equip',
     background: 'black',
     color: '#666',
     x: grid.inventory.x,

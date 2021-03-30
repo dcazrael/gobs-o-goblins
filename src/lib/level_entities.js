@@ -10,11 +10,11 @@ export const MAX_ITEMS_BY_FLOOR = {
 export const ITEM_WEIGHT = {
   0: [
     { name: 'HealthPotion', weight: 0 },
-    { name: 'Weapon', weight: 60 },
-    { name: 'Shield', weight: 60 },
-    { name: 'Boots', weight: 60 },
-    { name: 'Helmet', weight: 60 },
-    { name: 'Chest', weight: 60 },
+    { name: 'Weapon', weight: 30 },
+    { name: 'Shield', weight: 30 },
+    { name: 'Boots', weight: 30 },
+    { name: 'Helmet', weight: 30 },
+    { name: 'Chest', weight: 30 },
   ],
   2: [{ name: 'ScrollParalyze', weight: 10 }],
   4: [{ name: 'ScrollLightning', weight: 25 }],
@@ -31,7 +31,7 @@ export const MAX_MONSTERS_BY_FLOOR = {
 };
 
 export const MONSTER_WEIGHT = {
-  0: [{ name: 'Goblin', weight: 0 }],
+  0: [{ name: 'Goblin', weight: 80 }],
   3: [{ name: 'GoblinWarrior', weight: 15 }],
   5: [{ name: 'GoblinWarrior', weight: 30 }],
   7: [{ name: 'GoblinWarrior', weight: 60 }],

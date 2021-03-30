@@ -1,6 +1,11 @@
 import { random, sample, times } from 'lodash';
 import { readCache } from '../state/cache';
-import { EquipmentEffect, IsEquippable, Position } from '../state/components';
+import {
+  EquipmentEffect,
+  IsEquippable,
+  IsPickup,
+  Position,
+} from '../state/components';
 import world from '../state/ecs';
 import {
   ARMOR_PREFIXES,
@@ -204,7 +209,9 @@ const getEntitiesAtRandom = (
 };
 
 const generateAffixes = () => {
-  const equippableItems = world.createQuery({ all: [IsEquippable] }).get();
+  const equippableItems = world
+    .createQuery({ all: [IsEquippable, IsPickup] })
+    .get();
 
   equippableItems.forEach((item) => {
     if (item.slot.name === 'weapon') {

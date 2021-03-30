@@ -148,7 +148,9 @@ export class EquipmentSlot extends Component {
   onEquip(evt) {
     if (!evt.data.equipmentEffect) return;
     evt.data.equipmentEffect.forEach((effect) => {
-      this.entity[effect.component].base += effect.delta;
+      if (effect.component === 'health') {
+        this.entity[effect.component].base += effect.delta;
+      }
       this.entity[effect.component].current += effect.delta;
     });
   }
@@ -156,14 +158,10 @@ export class EquipmentSlot extends Component {
   onUnequip(evt) {
     if (!evt.data.equipmentEffect) return;
     evt.data.equipmentEffect.forEach((effect) => {
-      this.entity[effect.component].base -= effect.delta;
-      if (this.entity[effect.component].base <= 0) {
-        this.entity[effect.component].base = 0;
+      if (effect.component === 'health') {
+        this.entity[effect.component].base -= effect.delta;
       }
       this.entity[effect.component].current -= effect.delta;
-      if (this.entity[effect.component].current <= 0) {
-        this.entity[effect.component].current = 0;
-      }
     });
   }
 }
