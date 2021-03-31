@@ -8,7 +8,14 @@ export const MAX_ITEMS_BY_FLOOR = {
 };
 
 export const ITEM_WEIGHT = {
-  0: [{ name: 'HealthPotion', weight: 35 }],
+  0: [
+    { name: 'HealthPotion', weight: 0 },
+    { name: 'Weapon', weight: 30 },
+    { name: 'Shield', weight: 30 },
+    { name: 'Boots', weight: 30 },
+    { name: 'Helmet', weight: 30 },
+    { name: 'Chest', weight: 30 },
+  ],
   2: [{ name: 'ScrollParalyze', weight: 10 }],
   4: [{ name: 'ScrollLightning', weight: 25 }],
   6: [{ name: 'ScrollFireball', weight: 25 }],

@@ -13,7 +13,11 @@ import {
 import {
   ActiveEffects,
   Ai,
+  Dropped,
   Effects,
+  EquipmentSlot,
+  IsDead,
+  IsEquipped,
   IsInFov,
   Move,
   Position,
@@ -92,6 +96,10 @@ const enemiesInFOV = world.createQuery({ all: [IsInFov, Ai] });
 export const goToDungeonLevel = (level) => {
   const goingUp = readCache('z') < level;
   const floor = readCache('floors')[level];
+
+  const deadEntities = world.createQuery({ all: [IsDead] }).get();
+
+  deadEntities.forEach((deadEntity) => deadEntity.destroy());
 
   addCache('z', level);
   player.remove(player.position);
@@ -205,6 +213,9 @@ const processUserInput = () => {
             pickupFound = true;
             player.fireEvent('pick-up', entity);
             addLog(`You pickup a ${entity.description.name}`);
+            if (entity.has(Dropped)) {
+              entity.remove(entity.dropped);
+            }
           }
         }
       );
@@ -252,6 +263,7 @@ const processUserInput = () => {
       if (player.inventory.inventoryItems.length) {
         const entity = player.inventory.inventoryItems[selectedInventoryIndex];
         addLog(`You drop a ${entity.description.name}`);
+        entity.add(Dropped);
         player.fireEvent('drop', entity);
       }
     }
@@ -286,6 +298,47 @@ const processUserInput = () => {
 
           addLog(`You consume a ${entity.description.name}`);
           player.fireEvent('consume', entity);
+        } else {
+          addLog(`You can't consume ${entity.description.name}`);
+        }
+
+        selectedInventoryIndex = 0;
+
+        gameState = 'GAME';
+      }
+    }
+
+    if (userInput === 'e') {
+      const entity = player.inventory.inventoryItems[selectedInventoryIndex];
+
+      if (entity) {
+        if (entity.isEquippable) {
+          if (!entity.has(IsEquipped)) {
+            if (player.equipmentSlot?.[entity.slot.name]) {
+              const previousEquipped = world.getEntity(
+                player.equipmentSlot?.[entity.slot.name].itemId
+              );
+              previousEquipped.remove(previousEquipped.isEquipped);
+
+              player.fireEvent('unequip', previousEquipped);
+              player.remove(player.equipmentSlot[previousEquipped.slot.name]);
+              addLog(`You unequip ${previousEquipped.description.name}`);
+            }
+            player.add(EquipmentSlot, {
+              name: entity.slot.name,
+              itemId: entity.id,
+            });
+            entity.add(IsEquipped);
+
+            player.fireEvent('equip', entity);
+            addLog(`You equip ${entity.description.name}`);
+          } else {
+            entity.remove(entity.isEquipped);
+
+            player.fireEvent('unequip', entity);
+            player.equipmentSlot[entity.slot.name].destroy();
+            addLog(`You unequip ${entity.description.name}`);
+          }
         }
 
         selectedInventoryIndex = 0;

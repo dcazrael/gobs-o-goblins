@@ -1,8 +1,8 @@
-import { rectangle } from "./grid";
+import { rectangle } from './grid';
 
 const pixelRatio = window.devicePixelRatio || 1;
-const canvas = document.querySelector("#canvas");
-const ctx = canvas.getContext("2d");
+const canvas = document.querySelector('#canvas');
+const ctx = canvas.getContext('2d');
 
 export const grid = {
   width: 100,
@@ -24,9 +24,28 @@ export const grid = {
 
   playerHud: {
     width: 20,
-    height: 34,
+    height: 6,
     x: 0,
     y: 0,
+  },
+
+  playerEquipment: {
+    width: 20,
+    height: 13,
+    x: 0,
+    y: 7,
+    head: { x: 5, y: 7 },
+    weapon: { x: 1, y: 11 },
+    chest: { x: 5, y: 11 },
+    shield: { x: 9, y: 11 },
+    legs: { x: 5, y: 15 },
+  },
+
+  equipmentInfo: {
+    width: 20,
+    height: 7,
+    x: 0,
+    y: 20,
   },
 
   infoBar: {
@@ -65,8 +84,8 @@ canvas.width = cellWidth * grid.width;
 canvas.height = cellHeight * grid.height;
 
 ctx.font = `normal ${fontSize}px 'Fira Code'`;
-ctx.textAlign = "center";
-ctx.textBaseline = "middle";
+ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
 
 export const drawChar = ({ char, color, position }) => {
   ctx.fillStyle = color;
@@ -78,7 +97,7 @@ export const drawChar = ({ char, color, position }) => {
 };
 
 const drawBackground = ({ color, position }) => {
-  if (color === "transparent") return;
+  if (color === 'transparent') return;
 
   ctx.fillStyle = color;
 
@@ -103,7 +122,7 @@ export const drawCell = (entity, options = {}) => {
 export const drawText = (template) => {
   const textToRender = template.text;
 
-  textToRender.split("").forEach((char, index) => {
+  [...textToRender].forEach((char, index) => {
     const options = { ...template };
     const character = {
       appearance: {
@@ -119,7 +138,6 @@ export const drawText = (template) => {
 
     delete options.x;
     delete options.y;
-
     drawCell(character, options);
   });
 };
@@ -150,4 +168,29 @@ export const pxToCell = (ev) => {
   const rowPos = Math.trunc((relativeY / cellHeight) * pixelRatio);
 
   return [colPos, rowPos];
+};
+
+export const drawImage = ({
+  x,
+  y,
+  width,
+  height,
+  image,
+  color = '#FFFFFF',
+}) => {
+  const img = new Image();
+
+  const coloredImage = image.replace(/#color/g, color);
+  img.src =
+    'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(coloredImage);
+
+  img.onload = () => {
+    ctx.drawImage(
+      img,
+      x * cellWidth + cellWidth / 2,
+      y * cellHeight + cellHeight / 2,
+      width * cellWidth + cellWidth / 2,
+      height * cellHeight
+    );
+  };
 };

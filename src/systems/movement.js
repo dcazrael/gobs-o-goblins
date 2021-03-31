@@ -19,7 +19,7 @@ const attack = (entity, target) => {
   target.fireEvent('take-damage', { amount: damage });
 
   if (target.health.current <= 0) {
-    return addLog(
+    addLog(
       `${entity.description.name} kicked a ${target.description.name} for ${damage} damage and killed it!`
     );
   }

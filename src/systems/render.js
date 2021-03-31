@@ -3,15 +3,19 @@ import { gameState, messageLog, selectedInventoryIndex } from '../index';
 import {
   clearCanvas,
   drawCell,
+  drawImage,
   drawRect,
   drawText,
   grid,
   pxToCell,
 } from '../lib/canvas';
+import { Chest, Helmet, Legs, Shield, Sword } from '../lib/equipment';
 import { toLocId } from '../lib/grid';
 import { readCache, readCacheSet } from '../state/cache';
 import {
   Appearance,
+  EquipmentEffect,
+  Inventory,
   IsInFov,
   IsRevealed,
   Layer100,
@@ -39,7 +43,7 @@ const clearMap = () => {
   clearCanvas(grid.map.x - 1, grid.map.y, grid.map.width + 1, grid.map.height);
 };
 
-export const renderMap = (player) => {
+export const renderMap = () => {
   clearMap();
 
   layer100Entities.get().forEach((entity) => {
@@ -94,14 +98,14 @@ const renderPlayerHud = (player) => {
   });
 
   drawText({
-    text: '♥'.repeat(player.health.max),
+    text: '♥'.repeat(player.health.base),
     background: 'black',
     color: '#333',
     x: grid.playerHud.x,
     y: grid.playerHud.y + 1,
   });
 
-  const hp = player.health.current / player.health.max;
+  const hp = player.health.current / player.health.base;
 
   if (hp > 0) {
     drawText({
@@ -119,6 +123,117 @@ const renderPlayerHud = (player) => {
     color: '#666',
     x: grid.playerHud.x,
     y: grid.playerHud.y + 2,
+  });
+
+  drawText({
+    text: `Power: ${player.power.current}`,
+    background: 'black',
+    color: '#DDD',
+    x: grid.playerHud.x,
+    y: grid.playerHud.y + 4,
+  });
+
+  drawText({
+    text: `Defense: ${player.defense.current}`,
+    background: 'black',
+    color: '#DDD',
+    x: grid.playerHud.x,
+    y: grid.playerHud.y + 5,
+  });
+};
+
+const clearPlayerEquipment = () => {
+  clearCanvas(
+    grid.playerEquipment.x,
+    grid.playerEquipment.y,
+    grid.playerEquipment.width + 1,
+    grid.playerEquipment.height
+  );
+};
+
+const renderPlayerEquipment = (player) => {
+  clearPlayerEquipment();
+  let equipmentSlots = [
+    { head: Helmet },
+    { weapon: Sword },
+    { chest: Chest },
+    { shield: Shield },
+    { legs: Legs },
+  ];
+
+  equipmentSlots.forEach((slot) => {
+    const [name, image] = Object.entries(slot)[0];
+    drawImage({
+      x: grid.playerEquipment[name].x,
+      y: grid.playerEquipment[name].y,
+      width: 3,
+      height: 3,
+      image: image,
+      color: player.equipmentSlot?.[name] ? '#FFFFFF' : '#111111',
+    });
+  });
+};
+
+const clearEquipmentInfo = () => {
+  clearCanvas(
+    grid.equipmentInfo.x,
+    grid.equipmentInfo.y,
+    grid.equipmentInfo.width + 1,
+    grid.equipmentInfo.height
+  );
+};
+
+const renderEquipmentInfo = (item) => {
+  clearEquipmentInfo();
+
+  drawText({
+    text: `${item.appearance.char} ${item.description.name}`,
+    background: `${item.appearance.background}`,
+    color: `#DDD`,
+    x: grid.equipmentInfo.x,
+    y: grid.equipmentInfo.y,
+  });
+
+  if (item.has(EquipmentEffect)) {
+    item.equipmentEffect.forEach((effect, index) => {
+      drawText({
+        text: `${effect.component}: +${effect.delta}`,
+        background: 'black',
+        color: '#DDD',
+        x: grid.equipmentInfo.x,
+        y: grid.equipmentInfo.y + index + 1,
+      });
+    });
+  }
+};
+
+const hoverEquipment = (x, y) => {
+  let equipmentSlots = [
+    { head: Helmet },
+    { weapon: Sword },
+    { chest: Chest },
+    { shield: Shield },
+    { legs: Legs },
+  ];
+
+  equipmentSlots.forEach((slot) => {
+    const [name] = Object.entries(slot)[0];
+    if (
+      x >= grid.playerEquipment[name].x &&
+      x <= grid.playerEquipment[name].x + 3 &&
+      y >= grid.playerEquipment[name].y &&
+      y <= grid.playerEquipment[name].y + 3
+    ) {
+      const query = world.createQuery({
+        all: [Inventory],
+      });
+
+      let player = query.get()[0];
+      if (player.equipmentSlot?.[name]) {
+        const item = world.getEntity(player.equipmentSlot?.[name].itemId);
+        renderEquipmentInfo(item);
+      }
+    }
   });
 };
 
@@ -204,9 +319,20 @@ const renderInfoBar = (mPos) => {
         const entity = world.getEntity(eId);
         clearInfoBar();
 
+        const isPlural =
+          [...entity.description.name][
+            [...entity.description.name].length - 1
+          ] === 's'
+            ? true
+            : false;
+
+        const entityText = `${!isPlural ? 'a ' : ''}${
+          entity.description.name
+        }(${entity.appearance.char})`;
+
         if (entity.isInFov) {
           drawText({
-            text: `You see a ${entity.description.name}(${entity.appearance.char}) here.`,
+            text: `You see ${entityText} here.`,
             x: grid.infoBar.x,
             y: grid.infoBar.y,
             color: 'white',
@@ -214,7 +340,7 @@ const renderInfoBar = (mPos) => {
           });
         } else {
           drawText({
-            text: `You remember seeing a ${entity.description.name}(${entity.appearance.char}) here.`,
+            text: `You remember seeing ${entityText} here.`,
             x: grid.infoBar.x,
             y: grid.infoBar.y,
             color: 'white',
@@ -238,7 +364,7 @@ const renderInventory = (player) => {
   });
 
   drawText({
-    text: '(c)Consume (d)Drop',
+    text: '(c)Consume (d)Drop (e)Equip',
     background: 'black',
     color: '#666',
     x: grid.inventory.x,
@@ -250,7 +376,7 @@ const renderInventory = (player) => {
       drawText({
         text: `${index === selectedInventoryIndex ? '*' : ' '}${
           item.description.name
-        }`,
+        }${item.isEquipped ? '[e]' : ''}`,
         background: 'black',
         color: 'white',
         x: grid.inventory.x,
@@ -302,6 +428,7 @@ const renderMenu = () => {
 export const render = (player) => {
   renderMap();
   renderPlayerHud(player);
+  renderPlayerEquipment(player);
   renderMessageLog();
   renderMenu();
 
@@ -314,6 +441,17 @@ const canvas = document.querySelector('canvas');
 canvas.onmousemove = throttle((e) => {
   if (gameState === 'GAME') {
     const [x, y] = pxToCell(e);
+
+    if (
+      x >= grid.playerEquipment.x &&
+      y >= grid.playerEquipment.y &&
+      x <= grid.playerEquipment.x + grid.playerEquipment.width &&
+      y <= grid.playerEquipment.y + grid.playerEquipment.height
+    ) {
+      clearEquipmentInfo();
+      hoverEquipment(x, y);
+    }
+
     renderMap();
     renderInfoBar({ x, y, z: readCache('z') });
   }
