@@ -6,6 +6,7 @@ import {
   Appearance,
   Defense,
   Description,
+  Dropped,
   Effects,
   EquipmentEffect,
   EquipmentSlot,
@@ -64,6 +65,7 @@ ecs.registerComponent(Ai);
 ecs.registerComponent(Appearance);
 ecs.registerComponent(Description);
 ecs.registerComponent(Defense);
+ecs.registerComponent(Dropped);
 ecs.registerComponent(Effects);
 ecs.registerComponent(EquipmentSlot);
 ecs.registerComponent(EquipmentEffect);

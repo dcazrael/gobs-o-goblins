@@ -181,8 +181,10 @@ export const drawImage = ({
   const img = new Image();
 
   const coloredImage = image.replace(/#color/g, color);
+  img.src =
+    'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(coloredImage);
 
-  img.onload = function () {
+  img.onload = () => {
     ctx.drawImage(
       img,
       x * cellWidth + cellWidth / 2,
@@ -191,6 +193,4 @@ export const drawImage = ({
       height * cellHeight
     );
   };
-  img.src =
-    'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(coloredImage);
 };

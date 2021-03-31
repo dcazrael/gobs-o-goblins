@@ -52,6 +52,8 @@ export class Description extends Component {
   static properties = { name: 'No Name' };
 }
 
+export class Dropped extends Component {}
+
 export class Effects extends Component {
   static allowMultiple = true;
   static properties = effectProps;

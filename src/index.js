@@ -13,6 +13,7 @@ import {
 import {
   ActiveEffects,
   Ai,
+  Dropped,
   Effects,
   EquipmentSlot,
   IsDead,
@@ -212,6 +213,9 @@ const processUserInput = () => {
             pickupFound = true;
             player.fireEvent('pick-up', entity);
             addLog(`You pickup a ${entity.description.name}`);
+            if (entity.has(Dropped)) {
+              entity.remove(entity.dropped);
+            }
           }
         }
       );
@@ -259,6 +263,7 @@ const processUserInput = () => {
       if (player.inventory.inventoryItems.length) {
         const entity = player.inventory.inventoryItems[selectedInventoryIndex];
         addLog(`You drop a ${entity.description.name}`);
+        entity.add(Dropped);
         player.fireEvent('drop', entity);
       }
     }

@@ -1,6 +1,7 @@
 import { random, sample, times } from 'lodash';
 import { readCache } from '../state/cache';
 import {
+  Dropped,
   EquipmentEffect,
   IsEquippable,
   IsPickup,
@@ -208,9 +209,12 @@ const getEntitiesAtRandom = (
   });
 };
 
+/**
+ * generates affixes and associates them to existing equippable items on the floor
+ */
 const generateAffixes = () => {
   const equippableItems = world
-    .createQuery({ all: [IsEquippable, IsPickup] })
+    .createQuery({ all: [IsEquippable, IsPickup], none: [Dropped] })
     .get();
 
   equippableItems.forEach((item) => {
@@ -228,6 +232,18 @@ const generateAffixes = () => {
   });
 };
 
+/**
+ * adds affixes to an item based on an object
+ * affixes structure:
+ * {
+ *    healthy: { component: 'health', delta: 1,},
+ *    stalwart: {component: 'health', delta: 2,},
+ *    virile: { component: 'health', delta: 3,},
+ * };
+ *
+ * @param {entity} item
+ * @param {Object} affixes
+ */
 const addAffix = (item, affixes) => {
   times(getWeightedNumber(false), () => {
     const affix = Object.keys(affixes)[getWeightedNumber()];
@@ -236,6 +252,17 @@ const addAffix = (item, affixes) => {
   });
 };
 
+/**
+ * Generate a weighted number
+ * if isAffix is true, it generates a number between 0 and 2
+ * this number is used to generate the specific affix.
+ *
+ * if isAffix is false, it generates a number between 0 and 1
+ * this number is used to define how many affixes are generated
+ *
+ * @param {Boolean} isAffix
+ * @returns Number
+ */
 const getWeightedNumber = (isAffix = true) => {
   const rng = Math.floor(Math.random() * 20 + 1);
 
