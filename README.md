@@ -1,8 +1,8 @@
 # Gobs O' Goblins
 
-[Play game in browser](https://luetkemj.github.io/gobs-o-goblins/)
+[Play game in browser](https://dcazrael.github.io/gobs-o-goblins/)
 
-[Want to make a roguelike like this? Follow the tutorial!](https://github.com/luetkemj/jsrlt)
+[Want to make a roguelike like this? Follow the tutorial!](https://github.com/dcazrael/jsrlt)
 
 ## Scripts
 
